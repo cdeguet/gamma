@@ -1,0 +1,56 @@
+//<< [basic_union.gm]
+enum Direction {
+  N, E, S, W
+}
+
+union Action {
+  Move(dir: Direction),
+  Shoot(strength: int),
+  Wait
+}
+//>> [basic_union.gm.cpp]
+#include "basic_union.gm.hpp"
+
+//>> [basic_union.gm.hpp]
+#ifndef basic_union_gm__
+#define basic_union_gm__
+
+enum class Direction {
+  N, E, S, W, 
+};
+
+struct Action {
+  enum Type {
+    Move_t, 
+    Shoot_t, 
+    Wait_t, 
+  } type;
+  struct Move_d {
+    Direction dir;
+  };
+  struct Shoot_d {
+    int strength;
+  };
+  union {
+    Move_d Move;
+    Shoot_d Shoot;
+  } data;
+  Action(Type type): type(type) {}
+  static Action Move(Direction dir) {
+    Action obj(Move_t);
+    obj.data.Move.dir = dir;
+    return obj;
+  }
+  static Action Shoot(int strength) {
+    Action obj(Shoot_t);
+    obj.data.Shoot.strength = strength;
+    return obj;
+  }
+  static Action Wait() {
+    Action obj(Wait_t);
+    return obj;
+  }
+};
+
+
+#endif

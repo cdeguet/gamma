@@ -1,0 +1,9 @@
+enum Direction [Out] {
+  N, E, S, W
+}
+
+union Action [Out] {
+  Move(dir: Direction) "MOVE {dir}",
+  Shoot(strength: int) "SHOOT {strength}",
+  Wait "WAIT"
+}

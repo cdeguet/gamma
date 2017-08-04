@@ -1,0 +1,89 @@
+//<< [union_out_format.gm]
+enum Direction [Out] {
+  N, E, S, W
+}
+
+union Action [Out] {
+  Move(dir: Direction) "MOVE {dir}",
+  Shoot(strength: int) "SHOOT {strength}",
+  Wait "WAIT"
+}
+//>> [union_out_format.gm.cpp]
+#include <map>
+#include <string>
+
+#include "union_out_format.gm.hpp"
+
+static const std::string kDirectionToStr[] = {
+  "N", "E", "S", "W", 
+};
+
+std::ostream &operator<<(std::ostream &os, const Direction &obj) {
+  os << kDirectionToStr[static_cast<size_t>(obj)];
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const Action &obj) {
+  switch (obj.type) {
+  case Action::Move_t:
+    os << "MOVE " << obj.data.Move.dir << "";
+  break;
+  case Action::Shoot_t:
+    os << "SHOOT " << obj.data.Shoot.strength << "";
+  break;
+  case Action::Wait_t:
+    os << "WAIT";
+  break;
+  }
+  return os;
+}
+
+//>> [union_out_format.gm.hpp]
+#ifndef union_out_format_gm__
+#define union_out_format_gm__
+
+#include <ostream>
+
+enum class Direction {
+  N, E, S, W, 
+};
+
+std::ostream &operator<<(std::ostream &os, const Direction &obj);
+
+struct Action {
+  enum Type {
+    Move_t, 
+    Shoot_t, 
+    Wait_t, 
+  } type;
+  struct Move_d {
+    Direction dir;
+  };
+  struct Shoot_d {
+    int strength;
+  };
+  union {
+    Move_d Move;
+    Shoot_d Shoot;
+  } data;
+  Action(Type type): type(type) {}
+  static Action Move(Direction dir) {
+    Action obj(Move_t);
+    obj.data.Move.dir = dir;
+    return obj;
+  }
+  static Action Shoot(int strength) {
+    Action obj(Shoot_t);
+    obj.data.Shoot.strength = strength;
+    return obj;
+  }
+  static Action Wait() {
+    Action obj(Wait_t);
+    return obj;
+  }
+};
+
+std::ostream &operator<<(std::ostream &os, const Action &obj);
+
+
+#endif

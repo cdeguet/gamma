@@ -1,0 +1,9 @@
+enum Direction {
+  N, E, S, W
+}
+
+union Action {
+  Move(dir: Direction),
+  Shoot(strength: int),
+  Wait
+}

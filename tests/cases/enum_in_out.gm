@@ -1,0 +1,3 @@
+enum Direction [In, Out] {
+    N, E, S, W
+}

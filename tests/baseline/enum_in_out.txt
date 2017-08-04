@@ -1,0 +1,51 @@
+//<< [enum_in_out.gm]
+enum Direction [In, Out] {
+    N, E, S, W
+}
+
+//>> [enum_in_out.gm.cpp]
+#include <map>
+#include <string>
+
+#include "enum_in_out.gm.hpp"
+
+static const std::map<std::string, Direction> kStrToDirection {
+  {"N", Direction::N},
+  {"E", Direction::E},
+  {"S", Direction::S},
+  {"W", Direction::W},
+};
+
+std::istream &operator>>(std::istream &is, Direction &obj) {
+  std::string str;
+  is >> str;
+  obj = kStrToDirection.at(str);
+  return is;
+}
+
+static const std::string kDirectionToStr[] = {
+  "N", "E", "S", "W", 
+};
+
+std::ostream &operator<<(std::ostream &os, const Direction &obj) {
+  os << kDirectionToStr[static_cast<size_t>(obj)];
+  return os;
+}
+
+//>> [enum_in_out.gm.hpp]
+#ifndef enum_in_out_gm__
+#define enum_in_out_gm__
+
+#include <istream>
+#include <ostream>
+
+enum class Direction {
+  N, E, S, W, 
+};
+
+std::istream &operator>>(std::istream &is, Direction &obj);
+
+std::ostream &operator<<(std::ostream &os, const Direction &obj);
+
+
+#endif
