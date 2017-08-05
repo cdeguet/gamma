@@ -1,13 +1,7 @@
-//<< [enum_in_out.gm]
-enum Direction [In, Out] {
-    N, E, S, W
-}
-
-//>> [enum_in_out.gm.cpp]
 #include <map>
 #include <string>
 
-#include "enum_in_out.gm.hpp"
+#include "src/enum_and_union.gm.hpp"
 
 static const std::map<std::string, Direction> kStrToDirection {
   {"N", Direction::N},
@@ -32,20 +26,18 @@ std::ostream &operator<<(std::ostream &os, const Direction &obj) {
   return os;
 }
 
-//>> [enum_in_out.gm.hpp]
-#ifndef enum_in_out_gm__
-#define enum_in_out_gm__
+std::ostream &operator<<(std::ostream &os, const Action &obj) {
+  switch (obj.type) {
+  case Action::Move_t:
+    os << "MOVE " << obj.data.Move.dir << "";
+  break;
+  case Action::Shoot_t:
+    os << "SHOOT " << obj.data.Shoot.strength << "";
+  break;
+  case Action::Wait_t:
+    os << "WAIT";
+  break;
+  }
+  return os;
+}
 
-#include <istream>
-#include <ostream>
-
-enum class Direction {
-  N, E, S, W, 
-};
-
-std::istream &operator>>(std::istream &is, Direction &obj);
-
-std::ostream &operator<<(std::ostream &os, const Direction &obj);
-
-
-#endif

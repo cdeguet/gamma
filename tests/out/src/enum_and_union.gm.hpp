@@ -1,23 +1,16 @@
-//<< [basic_union.gm]
-enum Direction {
-  N, E, S, W
-}
+#ifndef src_enum_and_union_gm__
+#define src_enum_and_union_gm__
 
-union Action {
-  Move(dir: Direction),
-  Shoot(strength: int),
-  Wait
-}
-//>> [basic_union.gm.cpp]
-#include "basic_union.gm.hpp"
-
-//>> [basic_union.gm.hpp]
-#ifndef basic_union_gm__
-#define basic_union_gm__
+#include <istream>
+#include <ostream>
 
 enum class Direction {
   N, E, S, W, 
 };
+
+std::istream &operator>>(std::istream &is, Direction &obj);
+
+std::ostream &operator<<(std::ostream &os, const Direction &obj);
 
 struct Action {
   enum Type {
@@ -51,6 +44,8 @@ struct Action {
     return obj;
   }
 };
+
+std::ostream &operator<<(std::ostream &os, const Action &obj);
 
 
 #endif
