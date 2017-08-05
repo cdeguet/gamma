@@ -88,5 +88,3 @@ To run the non-regression test suite:
 cd tests
 make
 ```
-
-Run `make rebuild` to rebuild the baseline, i.e to accept the current output of the compiler.
