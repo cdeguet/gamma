@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/cdeguet/gamma.svg?branch=master)](https://travis-ci.org/cdeguet/gamma)
+
 # The Gamma programming language
 
 Gamma is a modern language inspired by Rust, generating C++ code.
