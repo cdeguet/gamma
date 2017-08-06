@@ -1,4 +1,2 @@
 language: cpp
-script:
-  - cd gammac ; make
-  - cd tests ; make
+script: cd gammac && make && cd ../tests && make && cd ..
