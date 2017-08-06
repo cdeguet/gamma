@@ -19,8 +19,8 @@ is translated into the C++ code below:
 Header file (`sample.gm.hpp`):
 
 ```
-#ifndef enum_in_out_gm__
-#define enum_in_out_gm__
+#ifndef sample_gm__
+#define sample_gm__
 
 #include <istream>
 #include <ostream>
