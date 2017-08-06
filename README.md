@@ -82,7 +82,7 @@ Some parts of the Gamma compiler are written in Gamma itself; the corresponding 
 
 ## Run the tests
 
-To run the non-regression test suite:
+To build and run the test suite:
 
 ```
 cd tests

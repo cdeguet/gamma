@@ -14,21 +14,5 @@
  * limitations under the License.
  */
 
-#include <cassert>
-#include <iostream>
-#include <sstream>
-
-#include "src/enum_and_union.gm.hpp"
-
-int main(int argc, char **argv)
-{
-    std::stringstream input("E");
-    Direction dir;
-    input >> dir;
-    Action a1 = Action::Move(Direction::N);
-    Action a2 = a1;
-    Action a3 = Action::Wait();
-    std::stringstream output;
-    output << a2 << ", " << a3;
-    assert(output.str() == "MOVE N, WAIT");  
-}
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
