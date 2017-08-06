@@ -1,0 +1,4 @@
+language: cpp
+script:
+  - cd gammac ; make
+  - cd tests ; make
