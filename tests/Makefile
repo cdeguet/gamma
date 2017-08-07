@@ -37,7 +37,7 @@ clean:
 	rm -rf out/obj/* out/bin/*
 
 out/src/%.gm.cpp: src/%.gm
-	../gammac/out/bin/gammac $< ; fi
+	../gammac/out/bin/gammac $<
 
 out/obj/%.o: src/%.cpp $(ALL_INCS)
 	@mkdir -p out/obj
