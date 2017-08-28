@@ -45,9 +45,16 @@ struct TypeDecl : public AST
     std::shared_ptr<Id> name;
 };
 
+struct StringLiteral : public AST
+{
+    StringLiteral(const Token& token) : AST(token) {}
+};
+
 struct EnumFieldDecl : public AST
 {
     EnumFieldDecl(const Token &token) : AST(token) {}
+    
+    std::shared_ptr<StringLiteral> format;
 };
 
 struct EnumBody : public AST
@@ -85,11 +92,6 @@ struct Arg : public AST
     Arg(const Token &token, std::shared_ptr<TypeRef> type) : AST(token), type(type) {}
 
     std::shared_ptr<TypeRef> type;
-};
-
-struct StringLiteral : public AST
-{
-    StringLiteral(const Token& token) : AST(token) {}
 };
 
 struct UnionFieldDecl : public AST

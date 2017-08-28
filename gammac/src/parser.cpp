@@ -81,6 +81,12 @@ std::shared_ptr<EnumBody> Parser::parseEnumBody()
         Token tok = nextToken();
         match(Kind::Id);
         auto field = std::make_shared<EnumFieldDecl>(tok);
+        if (nextKind() == Kind::String)
+        {
+            Token stringTok = nextToken();
+            match(Kind::String);
+            field->format = std::make_shared<StringLiteral>(stringTok);
+        }
         body->fields.push_back(field);
         if (nextKind() == Kind::Comma)
         {
