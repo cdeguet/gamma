@@ -37,7 +37,8 @@ std::ostream &operator<<(std::ostream &os, const Action &obj) {
   case Action::Wait_t:
     os << "WAIT";
   break;
-  }
+  default:
+    break;  }
   return os;
 }
 

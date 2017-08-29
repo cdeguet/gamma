@@ -285,6 +285,8 @@ void CppGenerator::genUnionOutTrait(const UnionDecl &node)
         block += "    os << " + expandFormat(*field, field->format->getText()) + ";\n";
         block += "  break;\n";
     }
+    block += "  default:\n";
+    block += "    break;";
     block += "  }\n";
     block += "  return os;\n";
     block += "}\n\n";
