@@ -216,9 +216,10 @@ void CppGenerator::genUnionDecl(const UnionDecl &node)
     std::string block;
     block += "struct " + unionName + " {\n";
     block += "  enum Type {\n";
+    block += "    Undef,\n";
     for (auto field : node.body->fields)
     {
-        block += "    " + field->getText() + "_t, \n";
+        block += "    " + field->getText() + "_t,\n";
     }
     block += "  } type;\n";
     for (auto field : node.body->fields)
@@ -243,7 +244,7 @@ void CppGenerator::genUnionDecl(const UnionDecl &node)
         }
     }
     block += "  } data;\n";
-    block += "  " + unionName + "(Type type): type(type) {}\n";
+    block += "  " + unionName + "(Type type = Undef): type(type) {}\n";
     for (auto field : node.body->fields)
     {
         std::string fieldName = field->getText();

@@ -14,9 +14,10 @@ std::ostream &operator<<(std::ostream &os, const Direction &obj);
 
 struct Action {
   enum Type {
-    Move_t, 
-    Shoot_t, 
-    Wait_t, 
+    Undef,
+    Move_t,
+    Shoot_t,
+    Wait_t,
   } type;
   struct Move_d {
     Direction dir;
@@ -28,7 +29,7 @@ struct Action {
     Move_d Move;
     Shoot_d Shoot;
   } data;
-  Action(Type type): type(type) {}
+  Action(Type type = Undef): type(type) {}
   static Action Move(Direction dir) {
     Action obj(Move_t);
     obj.data.Move.dir = dir;

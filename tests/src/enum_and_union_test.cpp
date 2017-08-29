@@ -45,3 +45,11 @@ TEST_CASE("Union copy", "[union]")
     output << a2;
     REQUIRE(output.str() == "MOVE E");
 }
+
+TEST_CASE("Union default constructor", "[union]")
+{
+    Action a;
+    REQUIRE(a.type == Action::Undef);    
+    a = Action::Move(Direction::S);
+    REQUIRE(a.type == Action::Move_t);
+}
