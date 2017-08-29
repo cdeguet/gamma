@@ -21,6 +21,7 @@
 
 const std::map<std::string, Kind> Lexer::WORDS = {
     {"enum", Kind::EnumDecl},
+    {"struct", Kind::StructDecl},
     {"union", Kind::UnionDecl}};
 
 Lexer::Lexer(std::istream &is) : is(is)

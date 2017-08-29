@@ -52,6 +52,9 @@ private:
   void gen(const EnumDecl &node);
   void genEnumInTrait(const EnumDecl &node);
   void genEnumOutTrait(const EnumDecl &node);
+  void gen(const StructDecl &node);
+  void genStructDecl(const StructDecl &node);
+  void genStructOutTrait(const StructDecl &node);
   void gen(const UnionDecl &node);
   void genUnionDecl(const UnionDecl &node);
   void genUnionOutTrait(const UnionDecl &node);

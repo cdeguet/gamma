@@ -47,13 +47,13 @@ struct TypeDecl : public AST
 
 struct StringLiteral : public AST
 {
-    StringLiteral(const Token& token) : AST(token) {}
+    StringLiteral(const Token &token) : AST(token) {}
 };
 
 struct EnumFieldDecl : public AST
 {
     EnumFieldDecl(const Token &token) : AST(token) {}
-    
+
     std::shared_ptr<StringLiteral> format;
 };
 
@@ -117,6 +117,31 @@ struct UnionDecl : public TypeDecl
               std::shared_ptr<UnionBody> body) : TypeDecl(token, name), traitList(traitList), body(body) {}
 
     std::shared_ptr<UnionBody> body;
+    std::shared_ptr<TraitList> traitList;
+};
+
+struct StructFieldDecl : public AST
+{
+    StructFieldDecl(const Token &token, std::shared_ptr<TypeRef> type) : AST(token), type(type) {}
+
+    std::shared_ptr<TypeRef> type;
+};
+
+struct StructBody : public AST
+{
+    StructBody() : AST(Token(Kind::StructBody)) {}
+
+    std::vector<std::shared_ptr<StructFieldDecl>> fields;
+};
+
+struct StructDecl : public TypeDecl
+{
+    StructDecl(const Token &token,
+               std::shared_ptr<Id> name,
+               std::shared_ptr<TraitList> traitList,
+               std::shared_ptr<StructBody> body) : TypeDecl(token, name), traitList(traitList), body(body) {}
+
+    std::shared_ptr<StructBody> body;
     std::shared_ptr<TraitList> traitList;
 };
 

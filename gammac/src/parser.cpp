@@ -43,6 +43,8 @@ std::shared_ptr<TypeDecl> Parser::parseTypeDecl()
     {
     case Kind::EnumDecl:
         return parseEnumDecl();
+    case Kind::StructDecl:
+        return parseStructDecl();
     case Kind::UnionDecl:
         return parseUnionDecl();
     default:
@@ -100,21 +102,54 @@ std::shared_ptr<EnumBody> Parser::parseEnumBody()
     return body;
 }
 
+std::shared_ptr<StructDecl> Parser::parseStructDecl()
+{
+    Token tok = nextToken();
+    match(Kind::StructDecl);
+    auto name = parseId();
+    auto traitList = parseTraitList();
+    match(Kind::LBrace);
+    auto body = parseStructBody();
+    match(Kind::RBrace);
+    return std::make_shared<StructDecl>(tok, name, traitList, body);
+}
+
+std::shared_ptr<StructBody> Parser::parseStructBody()
+{
+    auto body = std::make_shared<StructBody>();
+    while (nextKind() == Kind::Id)
+    {
+        auto field = parseStructField();
+        body->fields.push_back(field);
+        if (nextKind() == Kind::Comma)
+        {
+            match(Kind::Comma);
+        }
+        else
+        {
+            break;
+        }
+    }
+    return body;
+}
+
+std::shared_ptr<StructFieldDecl> Parser::parseStructField()
+{
+    Token fieldId = nextToken();
+    match(Kind::Id);
+    match(Kind::Colon);
+    Token typeId = nextToken();
+    match(Kind::Id);
+    auto typeRef = std::make_shared<TypeRef>(typeId);
+    return std::make_shared<StructFieldDecl>(fieldId, typeRef);
+}
+
 std::shared_ptr<UnionDecl> Parser::parseUnionDecl()
 {
     Token tok = nextToken();
     match(Kind::UnionDecl);
     auto name = parseId();
-    auto traitList = std::make_shared<TraitList>();
-    if (nextKind() == Kind::LBrack)
-    {
-        match(Kind::LBrack);
-        for (auto id : parseIdList())
-        {
-            traitList->traits.push_back(id);
-        }
-        match(Kind::RBrack);
-    }
+    auto traitList = parseTraitList();
     match(Kind::LBrace);
     auto body = parseUnionBody();
     match(Kind::RBrace);
@@ -208,6 +243,21 @@ std::vector<std::shared_ptr<Id>> Parser::parseIdList()
     }
     return list;
 };
+
+std::shared_ptr<TraitList> Parser::parseTraitList()
+{
+    auto traitList = std::make_shared<TraitList>();
+    if (nextKind() == Kind::LBrack)
+    {
+        match(Kind::LBrack);
+        for (auto id : parseIdList())
+        {
+            traitList->traits.push_back(id);
+        }
+        match(Kind::RBrack);
+    }
+    return traitList;
+}
 
 void Parser::match(Kind kind)
 {

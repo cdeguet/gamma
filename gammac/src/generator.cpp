@@ -33,7 +33,7 @@ std::string normalizeName(const std::string &name)
     return result;
 }
 
-std::string getEnumFieldFormat(const EnumFieldDecl& field)
+std::string getEnumFieldFormat(const EnumFieldDecl &field)
 {
     return field.format ? field.format->getText() : field.getText();
 }
@@ -95,6 +95,9 @@ void CppGenerator::gen(const AST &node)
         break;
     case Kind::EnumDecl:
         gen(static_cast<const EnumDecl &>(node));
+        break;
+    case Kind::StructDecl:
+        gen(static_cast<const StructDecl &>(node));
         break;
     case Kind::UnionDecl:
         gen(static_cast<const UnionDecl &>(node));
@@ -188,6 +191,86 @@ void CppGenerator::genEnumOutTrait(const EnumDecl &node)
     block += "\n};\n\n";
     block += "std::ostream &operator<<(std::ostream &os, const " + enumName + " &obj) {\n";
     block += "  os << " + enumToStr + "[static_cast<size_t>(obj)];\n";
+    block += "  return os;\n";
+    block += "}\n\n";
+    source.addBlock(block);
+}
+
+void CppGenerator::gen(const StructDecl &node)
+{
+    genStructDecl(node);
+    for (auto traitId : node.traitList->traits)
+    {
+        auto traitName = traitId->getText();
+        if (traitName == "Out")
+        {
+            genStructOutTrait(node);
+        }
+        else
+        {
+            throw std::runtime_error("Invalid trait " + traitName);
+        }
+    }
+}
+
+void CppGenerator::genStructDecl(const StructDecl &node)
+{
+    std::string structName = node.name->getText();
+    std::string block;
+    block += "struct " + structName + " {\n";
+    block += "  " + structName + "() = default;\n";
+    const auto &fields = node.body->fields;
+    if (!fields.empty())
+    {
+        block += "  " + structName + "(";
+        int fieldCount = fields.size();
+        for (auto field : fields)
+        {
+            block += field->type->getText() + " " + field->getText();
+            if (--fieldCount > 0)
+            {
+                block += ", ";
+            }
+        }
+        block += "): ";
+        fieldCount = fields.size();
+        for (auto field : fields)
+        {
+            block += field->getText() + "(" + field->getText() + ")";
+            if (--fieldCount > 0)
+            {
+                block += ", ";
+            }
+        }
+        block += " {}\n";
+    }
+    for (auto field : fields)
+    {
+        block += "  " + field->type->getText() + " " + field->getText() + ";\n";
+    }
+    block += "};\n\n";
+    header.addBlock(block);
+}
+
+void CppGenerator::genStructOutTrait(const StructDecl &node)
+{
+    auto structName = node.name->getText();
+    header.addInclude(STLHeader::ostream);
+    header.addBlock("std::ostream &operator<<(std::ostream &os, const " + structName + " &obj);\n\n");
+    std::string block;
+    block += "std::ostream &operator<<(std::ostream &os, const " + structName + " &obj) {\n";
+    block += "  os << \"{ \";\n";
+    int fieldCount = node.body->fields.size();    
+    for (auto field : node.body->fields)
+    {
+        block += "  os << \"" + field->getText() + "\" << \": \" << obj." + field->getText();
+        if (--fieldCount > 0)
+        {
+            block += " << \", \"";
+        }
+        block += ";\n";
+    }
+    block += "  os << \" }\";\n";
     block += "  return os;\n";
     block += "}\n\n";
     source.addBlock(block);
@@ -293,20 +376,20 @@ void CppGenerator::genUnionOutTrait(const UnionDecl &node)
     source.addBlock(block);
 }
 
-std::string CppGenerator::expandFormat(const UnionFieldDecl& scope, const std::string& format)
+std::string CppGenerator::expandFormat(const UnionFieldDecl &scope, const std::string &format)
 {
     std::string out = "\"";
-    for (char c: format)
+    for (char c : format)
     {
         switch (c)
         {
         case '{':
             out += "\" << ";
             out += "obj.data." + scope.getText() + ".";
-        break;
+            break;
         case '}':
             out += " << \"";
-        break;
+            break;
         default:
             out += c;
         }
@@ -314,4 +397,3 @@ std::string CppGenerator::expandFormat(const UnionFieldDecl& scope, const std::s
     out += "\"";
     return out;
 }
-

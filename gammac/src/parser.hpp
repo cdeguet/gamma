@@ -31,11 +31,15 @@ class Parser
     std::shared_ptr<TypeDecl> parseTypeDecl();
     std::shared_ptr<EnumDecl> parseEnumDecl();
     std::shared_ptr<EnumBody> parseEnumBody();
+    std::shared_ptr<StructDecl> parseStructDecl();
+    std::shared_ptr<StructBody> parseStructBody();
+    std::shared_ptr<StructFieldDecl> parseStructField();
     std::shared_ptr<UnionDecl> parseUnionDecl();
     std::shared_ptr<UnionBody> parseUnionBody();
     std::shared_ptr<UnionFieldDecl> parseUnionField();
     std::shared_ptr<Id> parseId();
     std::vector<std::shared_ptr<Id>> parseIdList();
+    std::shared_ptr<TraitList> parseTraitList();
 
   private:
     void match(Kind kind);

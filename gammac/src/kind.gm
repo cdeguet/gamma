@@ -32,4 +32,6 @@ enum Kind [Out] {
     TraitList,
     UnionDecl,
     UnionBody,
+    StructDecl,
+    StructBody,
 }
