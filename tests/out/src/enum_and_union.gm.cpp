@@ -17,16 +17,12 @@ std::istream &operator>>(std::istream &is, Direction &obj) {
   return is;
 }
 
-static const std::map<Direction, std::string> kDirectionToStr {
-  {Direction::N, "N"},
-  {Direction::E, "E"},
-  {Direction::S, "S"},
-  {Direction::W, "W"},
-
+static const std::string kDirectionToStr[] = {
+  "N", "E", "S", "W", 
 };
 
 std::ostream &operator<<(std::ostream &os, const Direction &obj) {
-  os << kDirectionToStr.at(obj);
+  os << kDirectionToStr[static_cast<size_t>(obj)];
   return os;
 }
 

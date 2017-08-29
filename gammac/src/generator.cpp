@@ -180,14 +180,14 @@ void CppGenerator::genEnumOutTrait(const EnumDecl &node)
     source.addInclude(STLHeader::string);
     std::string block;
     auto enumToStr = "k" + enumName + "ToStr";
-    block += "static const std::map<" + enumName + ", std::string> " + enumToStr + " {\n";
+    block += "static const std::string " + enumToStr + "[] = {\n  ";
     for (auto field : node.body->fields)
     {
-        block += "  {" + enumName + "::" + field->getText() + ", \"" + getEnumFieldFormat(*field) + "\"},\n";
+        block += "\"" + getEnumFieldFormat(*field) + "\", ";
     }
     block += "\n};\n\n";
     block += "std::ostream &operator<<(std::ostream &os, const " + enumName + " &obj) {\n";
-    block += "  os << " + enumToStr + ".at(obj);\n";
+    block += "  os << " + enumToStr + "[static_cast<size_t>(obj)];\n";
     block += "  return os;\n";
     block += "}\n\n";
     source.addBlock(block);
