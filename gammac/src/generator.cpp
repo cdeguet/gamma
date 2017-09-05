@@ -38,9 +38,36 @@ std::string getEnumFieldFormat(const EnumFieldDecl &field)
     return field.format ? field.format->getText() : field.getText();
 }
 
-void CppFile::addBlock(const std::string &block)
+CppBlock::CppBlock(const std::string &text) : text(text)
 {
-    blocks.push_back(block);
+}
+
+CppBlock &CppBlock::addBlock(const std::string &text)
+{
+    children.emplace_back(text);
+    return children.back();
+}
+
+CppBlock &CppBlock::operator+=(const std::string &string)
+{
+    text += string;
+    return *this;
+}
+
+std::ostream &operator<<(std::ostream &os, const CppBlock &block)
+{
+    os << block.text;
+    for (const auto &child : block.children)
+    {
+        os << child;
+    }
+    return os;
+}
+
+CppBlock &CppFile::addBlock(const std::string &text)
+{
+    CppBlock &child = block.addBlock(text);
+    return child;
 }
 
 void CppFile::addInclude(STLHeader header)
@@ -70,10 +97,7 @@ void CppFile::emit()
     {
         os << std::endl;
     }
-    for (const auto block : blocks)
-    {
-        os << block;
-    }
+    os << block;
     if (!includeGuard.empty())
     {
         os << "\n#endif\n";
@@ -198,7 +222,7 @@ void CppGenerator::genEnumOutTrait(const EnumDecl &node)
 
 void CppGenerator::gen(const StructDecl &node)
 {
-    genStructDecl(node);
+    genStructBody(node);
     for (auto traitId : node.traitList->traits)
     {
         auto traitName = traitId->getText();
@@ -213,43 +237,44 @@ void CppGenerator::gen(const StructDecl &node)
     }
 }
 
-void CppGenerator::genStructDecl(const StructDecl &node)
+CppBlock &CppGenerator::genStructBody(const StructDecl &node)
 {
     std::string structName = node.name->getText();
-    std::string block;
-    block += "struct " + structName + " {\n";
-    block += "  " + structName + "() = default;\n";
+    CppBlock &block = header.addBlock();
+    block.addBlock("struct " + structName + " {\n");
+    CppBlock &structBody = block.addBlock();
+    structBody += "  " + structName + "() = default;\n";
     const auto &fields = node.body->fields;
     if (!fields.empty())
     {
-        block += "  " + structName + "(";
+        structBody += "  " + structName + "(";
         int fieldCount = fields.size();
         for (auto field : fields)
         {
-            block += field->type->getText() + " " + field->getText();
+            structBody += field->type->getText() + " " + field->getText();
             if (--fieldCount > 0)
             {
-                block += ", ";
+                structBody += ", ";
             }
         }
-        block += "): ";
+        structBody += "): ";
         fieldCount = fields.size();
         for (auto field : fields)
         {
-            block += field->getText() + "(" + field->getText() + ")";
+            structBody += field->getText() + "(" + field->getText() + ")";
             if (--fieldCount > 0)
             {
-                block += ", ";
+                structBody += ", ";
             }
         }
-        block += " {}\n";
+        structBody += " {}\n";
     }
     for (auto field : fields)
     {
-        block += "  " + field->type->getText() + " " + field->getText() + ";\n";
+        structBody += "  " + field->type->getText() + " " + field->getText() + ";\n";
     }
-    block += "};\n\n";
-    header.addBlock(block);
+    block.addBlock("};\n\n");
+    return structBody;
 }
 
 void CppGenerator::genStructOutTrait(const StructDecl &node)
@@ -260,7 +285,7 @@ void CppGenerator::genStructOutTrait(const StructDecl &node)
     std::string block;
     block += "std::ostream &operator<<(std::ostream &os, const " + structName + " &obj) {\n";
     block += "  os << \"{ \";\n";
-    int fieldCount = node.body->fields.size();    
+    int fieldCount = node.body->fields.size();
     for (auto field : node.body->fields)
     {
         block += "  os << \"" + field->getText() + "\" << \": \" << obj." + field->getText();
@@ -278,11 +303,15 @@ void CppGenerator::genStructOutTrait(const StructDecl &node)
 
 void CppGenerator::gen(const UnionDecl &node)
 {
-    genUnionDecl(node);
+    CppBlock &unionBody = genUnionBody(node);
     for (auto traitId : node.traitList->traits)
     {
         auto traitName = traitId->getText();
-        if (traitName == "Out")
+        if (traitName == "Eq")
+        {
+            genUnionEqTrait(node, unionBody);
+        }
+        else if (traitName == "Out")
         {
             genUnionOutTrait(node);
         }
@@ -293,65 +322,102 @@ void CppGenerator::gen(const UnionDecl &node)
     }
 }
 
-void CppGenerator::genUnionDecl(const UnionDecl &node)
+CppBlock &CppGenerator::genUnionBody(const UnionDecl &node)
 {
     std::string unionName = node.name->getText();
-    std::string block;
-    block += "struct " + unionName + " {\n";
-    block += "  enum Type {\n";
-    block += "    Undef,\n";
+    CppBlock &block = header.addBlock();
+    block.addBlock("struct " + unionName + " {\n");
+    CppBlock &unionBody = block.addBlock();
+    unionBody += "  enum Type {\n";
+    unionBody += "    Undef,\n";
     for (auto field : node.body->fields)
     {
-        block += "    " + field->getText() + "_t,\n";
+        unionBody += "    " + field->getText() + "_t,\n";
     }
-    block += "  } type;\n";
+    unionBody += "  } type;\n";
     for (auto field : node.body->fields)
     {
         if (!field->args.empty())
         {
-            block += "  struct " + field->getText() + "_d {\n";
+            unionBody += "  struct " + field->getText() + "_d {\n";
             for (auto arg : field->args)
             {
-                block += "    " + arg->type->getText() + " " + arg->getText() + ";\n";
+                unionBody += "    " + arg->type->getText() + " " + arg->getText() + ";\n";
             }
-            block += "  };\n";
+            unionBody += "  };\n";
         }
     }
-    block += "  union {\n";
+    unionBody += "  union {\n";
     for (auto field : node.body->fields)
     {
         if (!field->args.empty())
         {
             std::string fieldName = field->getText();
-            block += "    " + fieldName + "_d " + fieldName + ";\n";
+            unionBody += "    " + fieldName + "_d " + fieldName + ";\n";
         }
     }
-    block += "  } data;\n";
-    block += "  " + unionName + "(Type type = Undef): type(type) {}\n";
+    unionBody += "  } data;\n";
+    unionBody += "  " + unionName + "(Type type = Undef): type(type) {}\n";
     for (auto field : node.body->fields)
     {
         std::string fieldName = field->getText();
-        block += "  static " + unionName + " " + fieldName + "(";
+        unionBody += "  static " + unionName + " " + fieldName + "(";
         int argCount = field->args.size();
         for (auto arg : field->args)
         {
-            block += arg->type->getText() + " " + arg->getText();
+            unionBody += arg->type->getText() + " " + arg->getText();
             if (--argCount > 0)
             {
-                block += ", ";
+                unionBody += ", ";
             }
         }
-        block += ") {\n";
-        block += "    " + unionName + " obj(" + fieldName + "_t);\n";
+        unionBody += ") {\n";
+        unionBody += "    " + unionName + " obj(" + fieldName + "_t);\n";
         for (auto arg : field->args)
         {
-            block += "    obj.data." + fieldName + "." + arg->getText() + " = " + arg->getText() + ";\n";
+            unionBody += "    obj.data." + fieldName + "." + arg->getText() + " = " + arg->getText() + ";\n";
         }
-        block += "    return obj;\n";
-        block += "  }\n";
+        unionBody += "    return obj;\n";
+        unionBody += "  }\n";
     }
-    block += "};\n\n";
-    header.addBlock(block);
+    block.addBlock("};\n\n");
+    return unionBody;
+}
+
+void CppGenerator::genUnionEqTrait(const UnionDecl &node, CppBlock &unionBody)
+{
+    auto unionName = node.name->getText();
+    unionBody += "  bool operator==(const " + unionName + " &other) const;\n";
+    std::string block;
+    block += "bool " + unionName + "::operator==(const " + unionName + " &other) const {\n";
+    block += "  if (type != other.type) return false;\n";
+    block += "  switch (type) {\n";
+    for (auto field : node.body->fields)
+    {
+        if (!field->args.empty())
+        {
+            std::string fieldName = field->getText();
+            block += "  case " + unionName + "::" + field->getText() + "_t:\n";
+            block += "    return ";
+            int argCount = field->args.size();
+            for (auto arg : field->args)
+            {
+                std::string argName = fieldName + "." + arg->getText();
+                block += "data." + argName + " == other.data." + argName;
+                if (--argCount > 0)
+                {
+                    block += "\n      && ";
+                }
+            }
+            block += ";\n";
+            block += "  break;\n";
+        }
+    }
+    block += "  default:\n";
+    block += "    return true;\n";
+    block += "  }\n";
+    block += "}\n\n";
+    source.addBlock(block);
 }
 
 void CppGenerator::genUnionOutTrait(const UnionDecl &node)

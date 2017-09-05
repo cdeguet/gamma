@@ -18,8 +18,8 @@ enum Direction [In, Out] {
   N, E, S, W
 }
 
-union Action [Out] {
+union Action [Eq, Out] {
   Move(dir: Direction) "MOVE {dir}",
-  Shoot(strength: int) "SHOOT {strength}",
+  Shoot(dir: Direction, strength: int) "SHOOT {dir} {strength}",
   Wait "WAIT"
 }

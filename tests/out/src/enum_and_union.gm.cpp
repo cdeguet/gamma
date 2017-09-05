@@ -26,13 +26,28 @@ std::ostream &operator<<(std::ostream &os, const Direction &obj) {
   return os;
 }
 
+bool Action::operator==(const Action &other) const {
+  if (type != other.type) return false;
+  switch (type) {
+  case Action::Move_t:
+    return data.Move.dir == other.data.Move.dir;
+  break;
+  case Action::Shoot_t:
+    return data.Shoot.dir == other.data.Shoot.dir
+      && data.Shoot.strength == other.data.Shoot.strength;
+  break;
+  default:
+    return true;
+  }
+}
+
 std::ostream &operator<<(std::ostream &os, const Action &obj) {
   switch (obj.type) {
   case Action::Move_t:
     os << "MOVE " << obj.data.Move.dir << "";
   break;
   case Action::Shoot_t:
-    os << "SHOOT " << obj.data.Shoot.strength << "";
+    os << "SHOOT " << obj.data.Shoot.dir << " " << obj.data.Shoot.strength << "";
   break;
   case Action::Wait_t:
     os << "WAIT";

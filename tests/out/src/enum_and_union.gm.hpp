@@ -23,6 +23,7 @@ struct Action {
     Direction dir;
   };
   struct Shoot_d {
+    Direction dir;
     int strength;
   };
   union {
@@ -35,8 +36,9 @@ struct Action {
     obj.data.Move.dir = dir;
     return obj;
   }
-  static Action Shoot(int strength) {
+  static Action Shoot(Direction dir, int strength) {
     Action obj(Shoot_t);
+    obj.data.Shoot.dir = dir;
     obj.data.Shoot.strength = strength;
     return obj;
   }
@@ -44,6 +46,7 @@ struct Action {
     Action obj(Wait_t);
     return obj;
   }
+  bool operator==(const Action &other) const;
 };
 
 std::ostream &operator<<(std::ostream &os, const Action &obj);

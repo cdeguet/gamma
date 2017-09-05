@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include <list>
 #include <set>
 #include <string>
 #include <vector>
@@ -25,20 +26,36 @@
 
 class StreamWriter;
 
+class CppBlock
+{
+public:
+  CppBlock(const std::string &text = "");
+  CppBlock &addBlock(const std::string &text = "");
+  CppBlock &operator+=(const std::string &string);
+
+  friend std::ostream &operator<<(std::ostream &, const CppBlock &);
+
+private:
+  std::string text;
+  std::list<CppBlock> children;
+};
+
+std::ostream &operator<<(std::ostream &os, const CppBlock &block);
+
 class CppFile
 {
 public:
   CppFile(StreamWriter &writer) : writer(writer) {}
-  void addBlock(const std::string &block);
+  CppBlock &addBlock(const std::string &text = "");
   void addInclude(STLHeader header);
-  void setIncludeGuard(const std::string& name);
+  void setIncludeGuard(const std::string &name);
   void emit();
 
 private:
   StreamWriter &writer;
   std::string includeGuard;
   std::set<STLHeader> includes;
-  std::vector<std::string> blocks;
+  CppBlock block;
 };
 
 class CppGenerator
@@ -53,12 +70,13 @@ private:
   void genEnumInTrait(const EnumDecl &node);
   void genEnumOutTrait(const EnumDecl &node);
   void gen(const StructDecl &node);
-  void genStructDecl(const StructDecl &node);
+  CppBlock &genStructBody(const StructDecl &node);
   void genStructOutTrait(const StructDecl &node);
   void gen(const UnionDecl &node);
-  void genUnionDecl(const UnionDecl &node);
+  CppBlock &genUnionBody(const UnionDecl &node);
+  void genUnionEqTrait(const UnionDecl &node, CppBlock &unionBody);
   void genUnionOutTrait(const UnionDecl &node);
-  std::string expandFormat(const UnionFieldDecl& scope, const std::string& format);
+  std::string expandFormat(const UnionFieldDecl &scope, const std::string &format);
 
   std::string fileName;
   CppFile source;
