@@ -23,7 +23,7 @@ ALL_INCS = $(wildcard src/*.hpp) $(wildcard out/src/*.hpp)
 
 CPPFLAGS = -Iout -Isrc
 
-tests: out/bin/tests
+test: out/bin/tests
 	@echo "Running tests..." && ./out/bin/tests
 
 .PRECIOUS: $(GEN_SRCS)

@@ -87,6 +87,6 @@ Some parts of the Gamma compiler are written in Gamma itself; the corresponding 
 To build and run the test suite:
 
 ```
-cd tests
-make
+cd gammac
+make test
 ```

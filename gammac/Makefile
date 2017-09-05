@@ -30,6 +30,9 @@ all: $(CPP_OBJS) $(GEN_OBJS)
 clean:
 	rm -rf out/obj/* out/bin/*
 
+test:
+	cd tests && $(MAKE) clean test
+
 out/src/%.gm.cpp: src/%.gm
 	if [ -f out/bin/gammac ]; then out/bin/gammac $< ; fi
 
