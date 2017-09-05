@@ -26,6 +26,9 @@ CPPFLAGS = -Iout -Isrc
 test: out/bin/tests
 	@echo "Running tests..." && ./out/bin/tests
 
+touch:
+	touch $(GM_SRCS)
+
 .PRECIOUS: $(GEN_SRCS)
 
 out/bin/tests: $(GEN_OBJS) $(CPP_OBJS)
@@ -37,7 +40,7 @@ clean:
 	rm -rf out/obj/* out/bin/*
 
 out/src/%.gm.cpp: src/%.gm
-	../gammac/out/bin/gammac $<
+	../../gammac/out/bin/gammac $<
 
 out/obj/%.o: src/%.cpp $(ALL_INCS)
 	@mkdir -p out/obj
