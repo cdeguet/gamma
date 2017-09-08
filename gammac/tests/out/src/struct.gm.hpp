@@ -19,6 +19,7 @@ struct Player {
   Player(int life, int bombs): life(life), bombs(bombs) {}
   int life;
   int bombs;
+  bool operator==(const Player &other) const;
 };
 
 std::ostream &operator<<(std::ostream &os, const Player &obj);

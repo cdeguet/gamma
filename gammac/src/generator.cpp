@@ -222,11 +222,15 @@ void CppGenerator::genEnumOutTrait(const EnumDecl &node)
 
 void CppGenerator::gen(const StructDecl &node)
 {
-    genStructBody(node);
+    CppBlock &structBody = genStructBody(node);
     for (auto traitId : node.traitList->traits)
     {
         auto traitName = traitId->getText();
-        if (traitName == "Out")
+        if (traitName == "Eq")
+        {
+            genStructEqTrait(node, structBody);
+        }
+        else if (traitName == "Out")
         {
             genStructOutTrait(node);
         }
@@ -275,6 +279,28 @@ CppBlock &CppGenerator::genStructBody(const StructDecl &node)
     }
     block.addBlock("};\n\n");
     return structBody;
+}
+
+void CppGenerator::genStructEqTrait(const StructDecl &node, CppBlock &structBody)
+{
+    auto structName = node.name->getText();
+    structBody += "  bool operator==(const " + structName + " &other) const;\n";
+    std::string block;
+    block += "bool " + structName + "::operator==(const " + structName + " &other) const {\n";
+    block += "  return ";
+    int fieldCount = node.body->fields.size();
+    for (auto field : node.body->fields)
+    {
+        std::string fieldName = field->getText();
+        block += fieldName + " == other." + fieldName;
+        if (--fieldCount > 0)
+        {
+            block += "\n      && ";
+        }
+    }
+    block += ";\n";
+    block += "}\n\n";
+    source.addBlock(block);
 }
 
 void CppGenerator::genStructOutTrait(const StructDecl &node)

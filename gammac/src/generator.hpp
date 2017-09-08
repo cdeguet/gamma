@@ -71,6 +71,7 @@ private:
   void genEnumOutTrait(const EnumDecl &node);
   void gen(const StructDecl &node);
   CppBlock &genStructBody(const StructDecl &node);
+  void genStructEqTrait(const StructDecl &node, CppBlock &structBody);
   void genStructOutTrait(const StructDecl &node);
   void gen(const UnionDecl &node);
   CppBlock &genUnionBody(const UnionDecl &node);

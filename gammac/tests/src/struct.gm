@@ -21,7 +21,7 @@ struct Coord {
     y: int
 }
 
-struct Player [Out] {
+struct Player [Eq, Out] {
     life: int,
     bombs: int
 }

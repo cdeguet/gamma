@@ -50,6 +50,14 @@ TEST_CASE("Struct to ostream", "[struct]")
     REQUIRE(out.str() == "{ life: 10, bombs: 5 }");
 }
 
+TEST_CASE("Struct equality", "[struct]")
+{
+    REQUIRE(Player(10, 5) == Player(10, 5));
+    REQUIRE_FALSE(Player(10, 5) == Player(10, 0));
+    REQUIRE_FALSE(Player(10, 5) == Player(0, 5));
+    REQUIRE_FALSE(Player(10, 5) == Player(0, 0));
+}
+
 TEST_CASE("Empty struct", "[struct]")
 {
     Unit unit;
