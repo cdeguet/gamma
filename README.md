@@ -6,7 +6,11 @@ Gamma is a modern language inspired by Rust, generating C++ code.
 
 With Gamma, you get all the power of C++, without the boilerplate!
 
+Just fake stuff - edited
+
 ## Example
+
+Some other fake stuff - edit
 
 The following Gamma code (`sample.gm`):
 
